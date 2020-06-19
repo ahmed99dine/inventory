@@ -40,4 +40,4 @@ Route::get('/suppliers/{url_string}/orders', 'SupplierController@orders')->name(
 // Route::put('/suppliers/{url_string}', 'SupplierController@update')->name('suppliers.update');
 // Route::get('/suppliers/{url_string}/edit', 'SupplierController@edit')->name('suppliers.edit');
 Route::get('/orders/{id}/orderitems','OrderController@items')->name('orders.items');
-Route::get('/orders','OrderController@index')->name('orders.index');
+//Route::get('/orders','OrderController@index')->name('orders.index');

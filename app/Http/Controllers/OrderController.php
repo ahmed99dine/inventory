@@ -29,8 +29,8 @@ class OrderController extends Controller
                   ->select('orders.order_date as date' ,'products.model_no as model','products.make as make',
                           'order_items.quantity as quantity')
                   ->join('order_items','orders.id', '=' ,'order_items.order_id')
-                  //->where('orders.id','=', $id)
                   ->join('products','products.id','=','order_items.product_id')
+                  ->where('orders.id','=', $id)
                   ->get();
     return response($order_details);
   }
