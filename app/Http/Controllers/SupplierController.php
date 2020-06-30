@@ -19,12 +19,13 @@ class SupplierController extends Controller
     $suppliers = Supplier::all();
 
        return response($suppliers);
-    // return view('suppliers.index',compact('suppliers'))
+    //    return view('suppliers.index',compact('suppliers'))
     // ->with('i', (request()->input('page', 1) - 1) * 6);
   }
 
   public function orders(Request $request,$id)
   {
+
     $hashids = new Hashids(Supplier::class, 10);
     $id = $hashids->decode($id);
     $supplier_orders = DB::table('suppliers')
@@ -32,7 +33,7 @@ class SupplierController extends Controller
                           ->where('suppliers.id', '=', $id)
                           ->select('suppliers.name as supplier_name','suppliers.email as supplier_email','orders.order_date as date')
                           ->get();
-    return response($supplier_orders);
+    return response()->json($supplier_orders, 200);
   }
 
   /**
@@ -59,7 +60,7 @@ class SupplierController extends Controller
       'email' => 'required',
       'location'=>'required',
     ]);
-    Supplier::create($request->all());
+     // return response (Supplier::create($request->all()));
 
     return redirect()->route('suppliers.index')
     ->with('success','Supplier created successfully.');
@@ -78,6 +79,7 @@ class SupplierController extends Controller
     $supplier = Supplier::where('id',$id)->first();
 
     return view('suppliers.show',compact('supplier'));
+    // return response ($supplier);
   }
 
   /**
@@ -92,6 +94,7 @@ class SupplierController extends Controller
     $id = $hashids->decode($id);
     $supplier = Supplier::where('id',$id)->first();
     return view('suppliers.edit',compact('supplier'));
+    // return response($supplier);
   }
 
   /**
@@ -107,23 +110,26 @@ class SupplierController extends Controller
     $modelId = $generator->decode($id);
     $supplier = Supplier::where('id',$modelId)->first();
 
-    $request->validate([
-      'name' => 'required',
-      'phone' => 'required',
-      'email' => 'required',
-      'location'=>'required',
+    $supplier ->update($request->all());
+    // $request->validate([
+    //   'name' => 'required',
+    //   'phone' => 'required',
+    //   'email' => 'required',
+    //   'location'=>'required',
+    //
+    // ]);
+    //
+    // $supplier->name = $request->input('name');
+    // $supplier->phone = $request->input('phone');
+    // $supplier->email = $request->input('email');
+    // $supplier->location = $request->input('location');
+    //
+    // $supplier->save();
 
-    ]);
+    // return redirect()->route('suppliers.index')
+    // ->with('success','Supplier updated successfully.');
+     return response ($request);
 
-    $supplier->name = $request->input('name');
-    $supplier->phone = $request->input('phone');
-    $supplier->email = $request->input('email');
-    $supplier->location = $request->input('location');
-
-    $supplier->save();
-
-    return redirect()->route('suppliers.index')
-    ->with('success','Supplier updated successfully.');
   }
 
   /**
@@ -140,11 +146,6 @@ class SupplierController extends Controller
     $supplier->delete();
        return redirect()->route('suppliers.index')
        ->with('success','Supplier deleted successfully');
-    // if ($supplier != null){
-    //   $supplier->delete();
-    //   return redirect()->route('supplier.index')
-    //   ->with('success','Supplier deleted successfully');
-    // }
     // return redirect()->route('suppliers.index')
     // ->with(['message'=>'Not Found']);
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Product;
+use App\OrderItem;
 use Illuminate\Http\Request;
 use Hashids\Hashids;
 use Illuminate\Support\Facades\DB;
@@ -135,6 +136,18 @@ class ProductController extends Controller
     return redirect()->route('products.index')
     ->with('success','Product deleted successfully');
   }
+  public function order_count(Request $request,$id)
+  {
+    $hashids = new Hashids(Product::class,10);
+    $id = $hashids->decode($id);
+    // $order_count = Product::select('products.model_no','products.make',)
+    $product_summary = DB::table('order_items as oi')
+      ->join('products as p', 'oi.product_id', '=', 'p.id')
+      // ->where('p.id' ,'=',$id)
+      ->select('p.model_no','p.make', DB::raw('count(p.id) as reorder_times'),DB::raw('sum(oi.unit_cost*oi.quantity) as total_cost'))
+      ->groupBy('p.id', 'p.model_no','p.make')
+      ->get();
 
-
+      return $product_summary;
+    }
 }

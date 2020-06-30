@@ -14,9 +14,10 @@ use App\Order;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::post('/suppliers/store','SupplierController@store')->name('suppliers.store');
+Route::get('/suppliers/{url_string}/orders', 'SupplierController@orders');
+Route::put('/suppliers/{url_string}', 'SupplierController@update')->name('suppliers.update');
+Route::get('/products/{url_string}/summary','ProductController@order_count');
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group(['middleware' => 'auth:api'], function(){
 });
-
-Route::get('/suppliers/{url_string}/orders', 'SupplierController@orders')->name('suppliers.orders');
