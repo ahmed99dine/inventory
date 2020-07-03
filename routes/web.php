@@ -43,3 +43,5 @@ Route::post('/suppliers/store','SupplierController@store')->name('suppliers.stor
 
 Route::get('/orders/{id}/orderitems','OrderController@items')->name('orders.items');
 //Route::get('/orders','OrderController@index')->name('orders.index');
+
+Route::post('/orders/{id}','OrderController@receiveOrder');

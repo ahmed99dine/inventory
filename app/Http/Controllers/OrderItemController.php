@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Order_Item;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\OrderItem;
 use Illuminate\Http\Request;
 
 class OrderItemController extends Controller
@@ -44,7 +45,7 @@ class OrderItemController extends Controller
      * @param  \App\Order_Item  $order_Item
      * @return \Illuminate\Http\Response
      */
-    public function show(Order_Item $order_Item)
+    public function show(OrderItem $order_Item)
     {
         //
     }
@@ -55,7 +56,7 @@ class OrderItemController extends Controller
      * @param  \App\Order_Item  $order_Item
      * @return \Illuminate\Http\Response
      */
-    public function edit(Order_Item $order_Item)
+    public function edit(OrderItem $order_Item)
     {
         //
     }
@@ -67,9 +68,14 @@ class OrderItemController extends Controller
      * @param  \App\Order_Item  $order_Item
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Order_Item $order_Item)
+    public function update(Request $request,  $id)
     {
-        //
+        $order_item = OrderItem::findorfail($id);
+        $order_item->quantity = $request->input('quantity');
+        $order_item->unit_cost = $request->input('unit_cost');
+        $order_item->status = $request->input('status');
+        $order_item->save();
+        return response($request);
     }
 
     /**
@@ -78,8 +84,9 @@ class OrderItemController extends Controller
      * @param  \App\Order_Item  $order_Item
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Order_Item $order_Item)
+    public function destroy(OrderItem $order_Item,$id)
     {
-        //
+        $order_item=OrderItem::findorfail($id);
+        return($order_item->delete());
     }
 }

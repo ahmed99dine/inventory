@@ -21,3 +21,15 @@ Route::get('/products/{url_string}/summary','ProductController@order_count');
 
 Route::group(['middleware' => 'auth:api'], function(){
 });
+
+Route::group(['prefix' =>'orders'],function(){
+  Route::post('/{id}/receive','OrderController@receiveOrder');
+  Route::get('/index','OrderController@index');
+  Route::get('/show/{id}','OrderController@show');
+  Route::post('/store','OrderController@store');
+  Route::delete('/destroy/{id}','OrderController@destroy');
+  Route::put('/update/{id}','OrderItemController@update');
+  Route::delete('/delete/{id}','OrderItemController@destroy');
+});
+
+Route::post('/orders/{id}','OrderController@receiveOrder');

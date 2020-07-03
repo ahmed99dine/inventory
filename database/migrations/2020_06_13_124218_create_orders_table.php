@@ -17,6 +17,8 @@ class CreateOrdersTable extends Migration
             $table->increments('id');
             $table->integer('supplier_id')->unsigned();
             $table->date('order_date');
+            $table->integer('status')->default(0);
+            $table->softDeletes();
             $table->timestamps();
             $table->foreign('supplier_id')->references('id')->on('suppliers');
         });
