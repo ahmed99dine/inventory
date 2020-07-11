@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Supplier;
 use App\Order;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -32,4 +33,6 @@ Route::group(['prefix' =>'orders'],function(){
   Route::delete('/delete/{id}','OrderItemController@destroy');
 });
 
-Route::post('/orders/{id}','OrderController@receiveOrder');
+Route::post('/orders/receive/{id}','OrderController@receiveOrder');
+Route::get('/orders/test/{id}','OrderController@test');
+Route::put('/invoice/update/{id}','InvoiceController@update');

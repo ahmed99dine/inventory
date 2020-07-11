@@ -23,6 +23,7 @@ $factory->define(OrderItem::class, function (Faker $faker) {
         'product_id' => $faker->numberBetween($min = 1, $max = 10),
         'quantity' => $faker->numberBetween($min = 1, $max = 100),
         'unit_cost' => $faker->numberBetween($min = 1000, $max = 90000),
-
+        // 'invoice_id' =>$faker->numberBetween($min=1, $max=10),
+        // 'inv_unitcost' => $faker->numberBetween($min=1000, $max =90000),
     ];
 });

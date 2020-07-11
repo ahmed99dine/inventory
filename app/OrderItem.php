@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Invoice;
 
 class OrderItem extends Model
 {
@@ -11,7 +12,10 @@ class OrderItem extends Model
     protected $fillable =[
        'order_id','product_id','quantity','unit_cost'
     ];
-
+    public function invoice()
+    {
+      return $this->belongsTo('App\Invoice');
+    }
     public function order()
     {
         return $this->belongsTo('App\Order');

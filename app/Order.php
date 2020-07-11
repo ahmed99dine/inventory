@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Supplier;
+use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
@@ -24,7 +25,8 @@ class Order extends Model
   public function order_amount()
   {
     return $this->hasMany('App\OrderItem')
-    ->select(DB::raw('SUM(IFNULL((unit_cost * quantity), 0))'));
+      ->groupBy('order_id')
+    ->select(DB::raw('SUM(IFNULL((unit_cost * quantity), 0)) as order_amount'));
   }
 
   CONST ORDER_STATUS_DRAFT = 0;
@@ -37,15 +39,15 @@ class Order extends Model
   public function update_order_status(){
     $receivedCount = $this->hasMany('App\OrderItem')
     ->where('status', OrderItem::ORDERITEM_RECEIVED)
-    ->count();
+    ->count(); // counts item with status received
 
     $notReceivedCount = $this->hasMany('App\OrderItem')
     ->where('status', OrderItem::ORDERITEM_NOTRECEIVED)
-    ->count();
+    ->count(); // counts items with status not_received
 
     $unattendedCount = $this->hasMany('App\OrderItem')
     ->where('status', OrderItem::ORDERITEM_UNATTENDED)
-    ->count();
+    ->count();  // counts items with status not_received
 
     $totalCount = $this->items->count();
 
