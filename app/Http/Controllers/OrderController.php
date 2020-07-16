@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\AccountingTransaction;
+use Illuminate\Http\Response;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Inventorytransaction;
 use App\OrderItem;
 use App\Order;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
+use App\AccountingTransaction;
 use Hashids\Hashids;
 use App\Product;
 use App\Invoice;
+use App\Inventory;
+use App\Supplier;
+
 class OrderController extends Controller
 {
   /**
@@ -48,9 +52,11 @@ class OrderController extends Controller
   }
 
   public function receiveOrder(Request $request, $id){
+
+    $order = Order::findorfail($id);
     $invoice=new Invoice();
     $invoice->invoice_date = $request->input('invoice_date');
-    $invoice->supplier_id = $request->input('supplier_id');
+    $invoice->supplier_id = $order->supplier_id;
     $invoice->invoice_number = $request->input('invoice_number');
     if($invoice->save()){
       $orderitems = $request->input('order_items');
@@ -58,7 +64,7 @@ class OrderController extends Controller
       foreach ($orderitems as $orderitem) {
         $receiving_quantity = $orderitem['receiving_quantity'];
         $orderitem_id = $orderitem['order_item_id'];
-        $oderitem_inv = $orderitem['invoice_cost'];
+        $oderitem_inv = $orderitem['invoice_unitcost'];
         $oderitem_disc = $orderitem['discount'];
 
         $existing_orderitem = OrderItem::findorfail($orderitem_id);
@@ -69,8 +75,50 @@ class OrderController extends Controller
         if( $existing_orderitem->quantity == $receiving_quantity ){
           $existing_orderitem->status = OrderItem::ORDERITEM_RECEIVED;
           $existing_orderitem->invoice_id = $invoice->id;
+          $existing_orderitem->invoice_unitcost = $oderitem_inv;
+          $existing_orderitem->discount = $oderitem_disc;
 
           $existing_orderitem->save();
+
+          $inventory =
+              Inventory::where('product_id', $existing_orderitem->product_id)
+                    ->where('unit_cost', $existing_orderitem->invoice_unitcost)
+                    ->first();
+
+              // dd($inventory);
+          if(!is_null($inventory)){
+            // exists
+            $inventory->quantity += $receiving_quantity;
+            $inventory->save();
+
+            $inventoryTransaction = new Inventorytransaction();
+            $inventoryTransaction->inventory_id = $inventory->id;
+            $inventoryTransaction->product_id = $inventory->product_id;
+            $inventoryTransaction->orderitem_id = $existing_orderitem->id;
+            $inventoryTransaction->transaction_type = Inventorytransaction::PURCHASE;
+            $inventoryTransaction->quantity = $receiving_quantity;
+            $inventoryTransaction->initial_quantity = $inventory->quantity - $receiving_quantity;
+            $inventoryTransaction->save();
+
+          }else{
+            $newInventory = new Inventory();
+            $newInventory->product_id = $existing_orderitem->product_id;
+            $newInventory->unit_cost = $existing_orderitem->invoice_unitcost;//this is a new cost of the item
+            $newInventory->quantity = $existing_orderitem->quantity;
+            $newInventory->low_limit = 0;
+            $newInventory->save();
+
+            $inventoryTransaction = new Inventorytransaction();
+            $inventoryTransaction->inventory_id = $newInventory->id;
+            $inventoryTransaction->product_id = $newInventory->product_id;
+            $inventoryTransaction->orderitem_id = $existing_orderitem->id;
+            $inventoryTransaction->transaction_type = Inventorytransaction::PURCHASE;
+            $inventoryTransaction->quantity = $receiving_quantity;
+            $inventoryTransaction->initial_quantity = $newInventory->quantity - $receiving_quantity;
+            $inventoryTransaction->save();
+          }
+
+
         }else{
           // Means receiving partial
           $remaining_quantity = $existing_orderitem->quantity - $receiving_quantity;
@@ -82,21 +130,59 @@ class OrderController extends Controller
           $new_orderitem->unit_cost = $existing_orderitem->unit_cost;
           $new_orderitem->status = OrderItem::ORDERITEM_RECEIVED;
           $new_orderitem->invoice_id = $invoice->id;
+          $new_orderitem->invoice_unitcost = $oderitem_inv;
+          $new_orderitem->discount = $oderitem_disc;
 
           $new_orderitem->save();
 
-          $existing_orderitem->quantity = $remaining_quantity;
+          $existing_orderitem->quantity = $remaining_quantity;//changes existing quantity
           $existing_orderitem->save();
+
+          $inventory =
+              Inventory::where('product_id', $new_orderitem->product_id)
+                    ->where('unit_cost', $new_orderitem->invoice_unitcost)
+                    ->first();
+          if(!is_null($inventory)){
+            // exists
+            $inventory->quantity += $receiving_quantity;
+            $inventory->save();
+
+            $inventoryTransaction = new Inventorytransaction();
+            $inventoryTransaction->inventory_id = $inventory->id;
+            $inventoryTransaction->product_id = $inventory->product_id;
+            $inventoryTransaction->orderitem_id = $new_orderitem->id;
+            $inventoryTransaction->transaction_type = Inventorytransaction::PURCHASE;
+            $inventoryTransaction->quantity = $receiving_quantity;
+            $inventoryTransaction->initial_quantity = $inventory->quantity - $receiving_quantity;
+            $inventoryTransaction->save();
+
+          }else{
+            $newInventory = new Inventory();
+            $newInventory->product_id = $new_orderitem->product_id;
+            $newInventory->unit_cost = $new_orderitem->invoice_unitcost;//this is a new cost of the item
+            $newInventory->quantity = $new_orderitem->quantity;
+            $newInventory->low_limit = 0;
+            $newInventory->save();
+
+            $inventoryTransaction = new Inventorytransaction();
+            $inventoryTransaction->inventory_id = $newInventory->id;
+            $inventoryTransaction->product_id = $newInventory->product_id;
+            $inventoryTransaction->orderitem_id = $new_orderitem->id;
+            $inventoryTransaction->transaction_type = Inventorytransaction::PURCHASE;
+            $inventoryTransaction->quantity = $receiving_quantity;
+            $inventoryTransaction->initial_quantity = $newInventory->quantity - $receiving_quantity;
+            $inventoryTransaction->save();
+          }
         }
       }
     }
 
-    $order = Order::findorfail($id);
+
     $order->update_order_status();
     $order->save();
 
     $newtransaction = new AccountingTransaction();
-    $newtransaction->account_type =AccountingTransaction::CREDIT;
+    $newtransaction->transaction_type =AccountingTransaction::CREDIT;
     $newtransaction->amount = $invoice->invoice_amount[0]->invoice_amount;
     $newtransaction->invoice_id = $invoice->id;
 
@@ -104,7 +190,12 @@ class OrderController extends Controller
 
 
 
-    return $newtransaction;
+    $supplier=Supplier::findorFail($order->supplier_id);
+    $supplier->outstanding_debt += $newtransaction->amount;
+    // $supplier->cleared_debt = 0;
+
+    $supplier->save();
+    return $order;
   }
 
   /**

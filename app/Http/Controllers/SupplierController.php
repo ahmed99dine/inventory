@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Hashids\Hashids;
 
+
 class SupplierController extends Controller
 {
   /**
@@ -143,9 +144,10 @@ class SupplierController extends Controller
     $generator = new Hashids(Supplier::class, 10);
     $modelId = $generator->decode($id);
     $supplier = Supplier::where('id',$modelId)->firstOrfail();
-    $supplier->delete();
-       return redirect()->route('suppliers.index')
-       ->with('success','Supplier deleted successfully');
+    return response($supplier->softDeletes());
+
+       // return redirect()->route('suppliers.index')
+       // ->with('success','Supplier deleted successfully');
     // return redirect()->route('suppliers.index')
     // ->with(['message'=>'Not Found']);
 

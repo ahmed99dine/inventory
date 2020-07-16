@@ -23,6 +23,7 @@ $factory->define(Supplier::class, function (Faker $faker) {
         'phone' => $faker->e164PhoneNumber,
         'email' => $faker->unique()->safeEmail,
         'location' => $faker->streetName,
+        'outstanding_debt' =>$faker->numberBetween($min=10000, $max=999999)
 
     ];
 });

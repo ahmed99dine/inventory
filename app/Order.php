@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\Supplier;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
@@ -28,6 +29,7 @@ class Order extends Model
       ->groupBy('order_id')
     ->select(DB::raw('SUM(IFNULL((unit_cost * quantity), 0)) as order_amount'));
   }
+  use SoftDeletes;
 
   CONST ORDER_STATUS_DRAFT = 0;
   CONST ORDER_STATUS_UNATTENDED = 1;
@@ -47,7 +49,7 @@ class Order extends Model
 
     $unattendedCount = $this->hasMany('App\OrderItem')
     ->where('status', OrderItem::ORDERITEM_UNATTENDED)
-    ->count();  // counts items with status not_received
+    ->count();  // counts items with status unattended
 
     $totalCount = $this->items->count();
 

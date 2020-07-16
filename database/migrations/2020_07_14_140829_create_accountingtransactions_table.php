@@ -15,11 +15,15 @@ class CreateAccountingtransactionsTable extends Migration
     {
         Schema::create('accountingtransactions', function (Blueprint $table) {
           $table->increments('id');
-          $table->integer('account_type');
+          $table->integer('transaction_type');
           $table->double('amount',10,2);
-          $table->integer('invoice_id')->nullable();
-          $table->integer('sell_id')->nullable();
+          $table->integer('invoice_id')->nullable()->unsigned();
+          $table->integer('sale_id')->nullable()->unsigned();
+          $table->integer('payment_id')->nullable()->unsigned();
           $table->string('cheque_no')->nullable();
+          $table->foreign('payment_id')->references('id')->on('payments');
+          $table->foreign('invoice_id')->references('id')->on('invoices');
+          $table->foreign('sale_id')->references('id')->on('sales');
           $table->timestamps();
         });
     }

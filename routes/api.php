@@ -36,3 +36,6 @@ Route::group(['prefix' =>'orders'],function(){
 Route::post('/orders/receive/{id}','OrderController@receiveOrder');
 Route::get('/orders/test/{id}','OrderController@test');
 Route::put('/invoice/update/{id}','InvoiceController@update');
+
+Route::post('/suppliers/{id}/pay','PaymentController@supplier_payment');
+Route::post('/sale/store','SaleController@sell');

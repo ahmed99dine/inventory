@@ -19,6 +19,6 @@ class Invoice extends Model
     public function invoice_amount()
     {
       return $this->hasMany('App\OrderItem')
-      ->select(DB::raw('SUM(IFNULL((inv_unitcost * quantity), 0)) as invoice_amount'));
+      ->select(DB::raw('SUM(IFNULL((invoice_unitcost * quantity), 0)) as invoice_amount'));
     }
 }
