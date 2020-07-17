@@ -96,12 +96,13 @@ class SaleController extends Controller
 
         }
       }
-      $newtransaction = new AccountingTransaction();
+      $accountingtransaction = new AccountingTransaction();
+      $sale_total=$sale->sale_amount();
+      
       if($sale_type == 'CREDIT'){
-        $newtransaction->transaction_type = AccountingTransaction::CREDIT_SALE;
-        $sale_total=$sale->sale_amount();
+        $accountingtransaction->transaction_type = AccountingTransaction::CREDIT_SALE;
       }else{
-        $newtransaction->transaction_type=AccountingTransaction::CASH_SALE;
+        $accountingtransaction->transaction_type=AccountingTransaction::CASH_SALE;
         $payment=new Payment();
         $payment->payment_type=Payment::CUSTOMER_PAYMENT;
         $payment->customer_id=$sale->customer_id;
