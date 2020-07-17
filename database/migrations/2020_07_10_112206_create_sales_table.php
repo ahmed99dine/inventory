@@ -19,7 +19,6 @@ class CreateSalesTable extends Migration
           $table->date('sale_date');
           $table->integer('customer_id')->nullable()->unsigned();
           $table->foreign('customer_id')->references('id')->on('customers');
-
           $table->timestamps();
         });
     }

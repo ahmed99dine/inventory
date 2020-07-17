@@ -21,6 +21,7 @@ class SaleController extends Controller
         $sale->sale_type=Sale::CASH_SALE;
       }
 
+      $sale->customer_id=$request->input('customer_id');
       $sale->sale_date=$request->input('sale_date');
       if($sale->save()){
         $saleitems= $request->input('sale_items');
@@ -70,6 +71,9 @@ class SaleController extends Controller
                   $newtransaction->transaction_type = AccountingTransaction::CREDIT_SALE;
                 }else{
                   $newtransaction->transaction_type=AccountingTransaction::CASH_SALE;
+                  $payment=new Payment();
+                  $payment->payment_type=Payment::CUSTOMER_PAYMENT;
+                  $payment->
                 }
                 $newtransaction->amount = ($saledetail->unit_price * $saledetail->quantity);
                 $newtransaction->sale_id = $sale->id;
