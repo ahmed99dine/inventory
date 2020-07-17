@@ -2,10 +2,11 @@
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
-use App\Model;
+use App\Customer;
 use Faker\Generator as Faker;
+use Illuminate\Support\Str;
 
-$factory->define(Model::class, function (Faker $faker) {
+$factory->define(Customer::class, function (Faker $faker) {
     return [
       'f_name' => $faker->firstNameMale,
       'l_name' => $faker->lastName,
