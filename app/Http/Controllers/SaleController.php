@@ -21,6 +21,7 @@ class SaleController extends Controller
         $sale->sale_type=Sale::CASH_SALE;
       }
 
+      $sale->customer_id=$request->input('customer_id');
       $sale->sale_date=$request->input('sale_date');
       if($sale->save()){
         $saleitems= $request->input('sale_items');
@@ -65,15 +66,7 @@ class SaleController extends Controller
                 $inventoryTransaction->initial_quantity = $inventory->quantity + $remaining_quantity;
                 $inventoryTransaction->save();
 
-                $newtransaction = new AccountingTransaction();
-                if($sale_type == 'CREDIT'){
-                  $newtransaction->transaction_type = AccountingTransaction::CREDIT_SALE;
-                }else{
-                  $newtransaction->transaction_type=AccountingTransaction::CASH_SALE;
-                }
-                $newtransaction->amount = ($saledetail->unit_price * $saledetail->quantity);
-                $newtransaction->sale_id = $sale->id;
-                $newtransaction->save();
+
 
               }else{// serving partially
                 $available_quantity = $inventory->quantity;
@@ -97,20 +90,27 @@ class SaleController extends Controller
                 $inventoryTransaction->initial_quantity = $inventory->quantity + $available_quantity;
                 $inventoryTransaction->save();
 
-                $newtransaction = new AccountingTransaction();
-                $newtransaction->transaction_type =$request->input('transaction_type');
-                $newtransaction->amount = ($saledetail->unit_price * $saledetail->quantity);
-                $newtransaction->sale_id = $sale->id;
-                $newtransaction->save();
               }
               $inventory->save();
             }
 
           }
         }
+        $newtransaction = new AccountingTransaction();
+        if($sale_type == 'CREDIT'){
+          $newtransaction->transaction_type = AccountingTransaction::CREDIT_SALE;
+
+        }else{
+          $newtransaction->transaction_type=AccountingTransaction::CASH_SALE;
+          $payment=new Payment();
+          $payment->payment_type=Payment::CUSTOMER_PAYMENT;
+          $payment->customer_id=$sale->customer_id;
+          $payment->amount=$sale->sale_amount();
+        }
+        $newtransaction->amount = ($saledetail->unit_price * $saledetail->quantity);
+        $newtransaction->sale_id = $sale->id;
+        $newtransaction->save();
       }
- return $sale;
-
-
-    }
+      return $sale;
+      }
 }

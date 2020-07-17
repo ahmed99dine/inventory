@@ -27,7 +27,8 @@ class Order extends Model
   {
     return $this->hasMany('App\OrderItem')
       ->groupBy('order_id')
-    ->select(DB::raw('SUM(IFNULL((unit_cost * quantity), 0)) as order_amount'));
+    ->select(DB::raw('SUM(IFNULL((unit_cost * quantity), 0)) as order_amount'))
+      ->first();
   }
   use SoftDeletes;
 
