@@ -19,8 +19,8 @@ class CreateCustomersTable extends Migration
             $table->string('l_name');
             $table->string('phone');
             $table->string('email');
-            $table->double('outstanding_debt',10,2);
-            $table->double('cleared_debt',10,2);
+            $table->double('outstanding_debt',10,2)->default(0);
+            $table->double('cleared_debt',10,2)->default(0);
             $table->softDeletes();
             $table->timestamps();
         });
