@@ -98,9 +98,12 @@ class SaleController extends Controller
       }
       $accountingtransaction = new AccountingTransaction();
       $sale_total=$sale->sale_amount();
-      
+
       if($sale_type == 'CREDIT'){
         $accountingtransaction->transaction_type = AccountingTransaction::CREDIT_SALE;
+        $customer=Customer::findorFail($sale->customer_id);
+        $customer->outstanding_debt +=$sale_total;
+        $customer->save();
       }else{
         $accountingtransaction->transaction_type=AccountingTransaction::CASH_SALE;
         $payment=new Payment();
