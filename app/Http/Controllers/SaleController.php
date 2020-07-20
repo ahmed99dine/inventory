@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Sale;
 use App\Inventorytransaction;
 use App\AccountingTransaction;
 use App\Payment;
 use App\Product;
+use App\Customer;
 use App\Saleitem;
+use App\Inventory;
 
 class SaleController extends Controller
 {
@@ -98,7 +101,7 @@ class SaleController extends Controller
       }
       $accountingtransaction = new AccountingTransaction();
       $sale_total=$sale->sale_amount();
-
+      dd($sale_total);
       if($sale_type == 'CREDIT'){
         $accountingtransaction->transaction_type = AccountingTransaction::CREDIT_SALE;
         $customer=Customer::findorFail($sale->customer_id);
@@ -110,12 +113,13 @@ class SaleController extends Controller
         $payment->payment_type=Payment::CUSTOMER_PAYMENT;
         $payment->customer_id=$sale->customer_id;
         $payment->amount=$sale_total;
+        dd($payment->amount);
         $payment->save();
       }
       $accountingtransaction->amount = $sale_total;
       $accountingtransaction->sale_id = $sale->id;
       $accountingtransaction->save();
     }
-    return $sale;
+    return $sale_total;
   }
 }

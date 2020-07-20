@@ -12,7 +12,7 @@ class Inventorytransaction extends Model
     return $this-> belongsTo('App\Product');
   }
 
-    const SELL = 0;
+    const SALE = 0;
     const PURCHASE = 1;
     const DAMAGED  =2;
     const RETURNED_TO_SUPLIER=3;

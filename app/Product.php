@@ -34,10 +34,14 @@ class Product extends Model
      }
      public function inventory_sum ()
      {
-      return $this-> hasMany('App\Inventory')
-                  ->groupBy('product_id')
-                  ->select(DB::RAW('SUM(IFNULL(quantity,0)) as quantity'))
-                  ->first()
-                  ->quantity;
+       $inventory_sum =  $this->hasMany('App\Inventory')
+                 ->groupBy('product_id')
+                 ->select(DB::RAW('SUM(IFNULL(quantity,0)) as quantity'))
+                 ->first();
+        
+        if(is_null($inventory_sum)){
+          return 0;
+        }
+      return $inventory_sum->quantity;
      }
 }

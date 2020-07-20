@@ -18,7 +18,7 @@ class CreateInventoryTable extends Migration
             $table->integer('product_id')->unsigned();
             $table->double('unit_cost',10,2);
             $table->integer('quantity');
-            $table->integer('low_limit');
+            $table->integer('low_limit')->default(0);
             $table->foreign('product_id')->references('id')->on('products');
             $table->softDeletes();
             $table->timestamps();

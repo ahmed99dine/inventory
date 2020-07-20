@@ -3,6 +3,8 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use App\Saleitem;
 
 class Sale extends Model
 {
@@ -11,10 +13,11 @@ class Sale extends Model
 
     public function sale_amount()
     {
-      return $this->hasMany('App\Saleitem')
+    $total_amount = $this->hasMany('App\SaleItem')
                   ->groupBy('sale_id')
-                  ->select(DB::raw('SUM(IFNULL((unit_price * quantity), 0))   as sale_amount'))
-                    ->first()
-                    ->sale_amount;
+                  ->select(DB::raw('SUM(IFNULL((unit_price * quantity), 0)) as sale_amount'))
+                  ->first();
+                  // ->sale_amount;
+                return $total_amount->sale_amount;
     }
 }
