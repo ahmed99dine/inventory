@@ -49,7 +49,7 @@ class SaleController extends Controller
           if($inventory->quantity > 0){
             if($inventory->quantity >= $remaining_quantity){//fully served or complete the remaining_quantity required
               $inventory->quantity -= $remaining_quantity;
-              $remaining_quantity = 0;
+              // $remaining_quantity = 0;
 
               $saledetail = new Saleitem();
               $saledetail->sale_id  = $sale->id;
