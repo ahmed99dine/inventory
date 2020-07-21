@@ -38,10 +38,17 @@ class Product extends Model
                  ->groupBy('product_id')
                  ->select(DB::RAW('SUM(IFNULL(quantity,0)) as quantity'))
                  ->first();
-        
+
         if(is_null($inventory_sum)){
           return 0;
         }
       return $inventory_sum->quantity;
+     }
+
+     public function fifo()
+     {
+       return $this-> hasMany('App\Inventory')
+                   ->select('quantity')
+                   ->groupBy('updated_at');
      }
 }
