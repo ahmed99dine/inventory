@@ -48,7 +48,7 @@ class Product extends Model
      public function fifo()
      {
        return $this-> hasMany('App\Inventory')
-                   ->select('quantity')
+                   ->select('product_id')
                    ->groupBy('updated_at');
      }
 }
