@@ -17,11 +17,13 @@ class CreateSaleitemsTable extends Migration
             $table->increments('id');
             $table->integer('sale_id')->unsigned();
             $table->integer('product_id')->unsigned();
+            $table->integer('inventory_id')->unsigned();
             $table->integer('quantity');
             $table->double('unit_cost',12,2);
             $table->double('unit_price',12,2);
             $table->foreign('sale_id')->references('id')->on('sales');
             $table->foreign('product_id')->references('id')->on('products');
+            $table->foreign('inventory_id')->references('id')->on('inventory');
             $table->softDeletes();
             $table->timestamps();
         });

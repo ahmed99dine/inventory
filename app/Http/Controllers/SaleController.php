@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Sale;
@@ -34,6 +35,13 @@ class SaleController extends Controller
         $quantity = $saleitem['quantity'];
         $unitPrice = $saleitem['unit_price'];
 
+        $inventory_item=DB::table('inventory')
+                      ->select('id as inventory_id' )
+                      ->where('product_id','=',$productId)
+                      ->orderBy('updated_at', 'ASC')
+                      ->first()
+                      ->inventory_id;
+
         $product = Product::findorFail($productId);
         $inventories = $product->inventory;//calling inventory relation
         $inventorysum = $product->inventory_sum();
@@ -53,6 +61,7 @@ class SaleController extends Controller
 
               $saledetail = new Saleitem();
               $saledetail->sale_id  = $sale->id;
+              $saledetail->inventory_id  = $inventory_item;
               $saledetail->product_id  = $productId;
               $saledetail->unit_cost  = $inventory->unit_cost;
               $saledetail->unit_price  = $unitPrice;
@@ -61,8 +70,8 @@ class SaleController extends Controller
 
 
               $inventoryTransaction = new Inventorytransaction();
-              $inventoryTransaction->inventory_id = $inventory->id;
-              $inventoryTransaction->product_id = $inventory->product_id;
+              $inventoryTransaction->inventory_id = $inventory_item;
+              $inventoryTransaction->product_id = $productId;
               $inventoryTransaction->saleitem_id = $saledetail->id;
               $inventoryTransaction->transaction_type = Inventorytransaction::SALE;
               $inventoryTransaction->quantity = $saledetail->quantity;
@@ -78,7 +87,7 @@ class SaleController extends Controller
 
               $saledetail = new Saleitem();
               $saledetail->sale_id  = $sale->id;
-              $saledetail->product_id  = $productId;
+              $saledetail->product_id  = $inventory_item;
               $saledetail->unit_cost  = $inventory->unit_cost;
               $saledetail->unit_price  = $unitPrice;
               $saledetail->quantity  = $available_quantity;
